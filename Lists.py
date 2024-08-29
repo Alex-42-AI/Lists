@@ -1,5 +1,3 @@
-if __name__ == '__main__':
-    from Personal.Graphs import heapify, build_heap
 class SortedList:
     def __init__(self, f=lambda x: x):
         self.__f = f
@@ -116,6 +114,21 @@ class SortedList:
         return str(self.__value)
     def __repr__(self):
         return str(self)
+def heapify(ll: [int], l: int, h: int, i: int, f=max):
+    left, right = l + 2 * (i - l), l + 2 * (i - l) + 1
+    res = i
+    if l + left <= h and ll[l + i - 1] != f(ll[l + left - 1], ll[l + i - 1]):
+        res = left
+    if l + right <= h and ll[l + res - 1] != f(ll[l + right - 1], ll[l + res - 1]):
+        res = right
+    if res != i:
+        ll[l + i - 1], ll[l + res - 1] = ll[l + res - 1], ll[l + i - 1]
+        heapify(ll, l, h, res, f)
+def build_heap(ll: [int], h: int = 0):
+    if not h:
+        h = len(ll)
+    for i in range(h // 2, 2, -1):
+        heapify(ll, 2, h, i)
 def heapsort(ll: [int]):
     build_heap(ll)
     h = len(ll)
