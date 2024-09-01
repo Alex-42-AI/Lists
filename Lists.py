@@ -51,7 +51,7 @@ class SortedList:
                     return False
                 low = mid
     def copy(self):
-        res = SortedList()
+        res = SortedList(self.__f)
         for el in self:
             res.insert(el)
         return res
@@ -96,10 +96,8 @@ class SortedList:
         return self[self.__i]
     def __getitem__(self, item: int | slice):
         return self.__value[item]
-    def __setitem__(self, key, value):
-        if key in self:
-            self.remove(key)
-        self.insert(value)
+    def __setitem__(self, i: int, value):
+        self.remove(self[i]), self.insert(value)
     def __add__(self, other):
         if isinstance(other, SortedList):
             if any([self.__f(el) != other.__f(el) for el in self.__value + other.__value]):
@@ -114,28 +112,6 @@ class SortedList:
         return str(self.__value)
     def __repr__(self):
         return str(self)
-def heapify(ll: [int], l: int, h: int, i: int, f=max):
-    left, right = l + 2 * (i - l), l + 2 * (i - l) + 1
-    res = i
-    if l + left <= h and ll[l + i - 1] != f(ll[l + left - 1], ll[l + i - 1]):
-        res = left
-    if l + right <= h and ll[l + res - 1] != f(ll[l + right - 1], ll[l + res - 1]):
-        res = right
-    if res != i:
-        ll[l + i - 1], ll[l + res - 1] = ll[l + res - 1], ll[l + i - 1]
-        heapify(ll, l, h, res, f)
-def build_heap(ll: [int], h: int = 0):
-    if not h:
-        h = len(ll)
-    for i in range(h // 2, 2, -1):
-        heapify(ll, 2, h, i)
-def heapsort(ll: [int]):
-    build_heap(ll)
-    h = len(ll)
-    for i in range(len(ll) - 1, 0, -1):
-        ll[0], ll[i] = ll[i], ll[0]
-        h -= 1
-        heapify(ll, 0, h, 1)
 def original(data: [int], starter: int = 0, jump: int = 1):
     for i in range(len(data)):
         if data[i] > i:
@@ -173,24 +149,30 @@ def is_sorted(l: [float]) -> bool:
         if l[i] > l[i + 1]:
             return False
     return True
-def merge(l0, l1):
-    i, j = 0, 0
-    while i < len(l0) and j < len(l1):
-        if l0[i] < l1[j]:
-            i += 1
-        else:
-            l0.insert(i, l1[j])
-            j += 1
-    l0 += l1[j:]
-def merge_sort(nums: [float]) -> [float]:
-    if not nums[1:]:
-        return nums
-    mid = len(nums) // 2
-    fst = merge_sort(nums[:mid])
-    merge(fst,  merge_sort(nums[mid:]))
-    return fst
+def heapify(ll: [int], l: int, h: int, i: int, f=max):
+    left, right = l + 2 * (i - l), l + 2 * (i - l) + 1
+    res = i
+    if l + left <= h and ll[l + i - 1] != f(ll[l + left - 1], ll[l + i - 1]):
+        res = left
+    if l + right <= h and ll[l + res - 1] != f(ll[l + right - 1], ll[l + res - 1]):
+        res = right
+    if res != i:
+        ll[l + i - 1], ll[l + res - 1] = ll[l + res - 1], ll[l + i - 1]
+        heapify(ll, l, h, res, f)
+def build_heap(ll: [int], h: int = 0):
+    if not h:
+        h = len(ll)
+    for i in range(h // 2, 2, -1):
+        heapify(ll, 2, h, i)
+def heapsort(ll: [int]):
+    build_heap(ll)
+    h = len(ll)
+    for i in range(len(ll) - 1, 0, -1):
+        ll[0], ll[i] = ll[i], ll[0]
+        h -= 1
+        heapify(ll, 0, h, 1)
 def merge_sort(A: [float]):
-    def merge(l ,mid, h):
+    def merge(l, mid, h):
         L = A[l:mid + 1]
         R = A[mid + 1:h + 1]
         i, j, k = 0, 0, l
@@ -213,3 +195,4 @@ def merge_sort(A: [float]):
         helper(l, mid)
         helper(mid + 1, h)
         merge(l, mid, h)
+    helper(0, len(A) - 1)
