@@ -95,6 +95,10 @@ class SortedList:
         self.__i += 1
         return self[self.__i]
     def __getitem__(self, item: int | slice):
+        if isinstance(item, slice):
+            res = SortedList(self.__f)
+            res.__value = self.__value[item]
+            return res
         return self.__value[item]
     def __setitem__(self, i: int, value):
         self.remove(self[i]), self.insert(value)
