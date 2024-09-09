@@ -62,7 +62,7 @@ class SortedList:
 
     def merge(self, other):
         if isinstance(other, SortedList):
-            if any([self.__f(el) != other.__f(el) for el in self.__value + other.__value]):
+            if any([self.__f(el) != other.__f(el) for el in self.value() + other.value()]):
                 raise ValueError("Sorting functions of both lists are different!")
             res = self.copy()
             for el in other:
@@ -70,7 +70,7 @@ class SortedList:
             return res
 
     def __len__(self):
-        return len(self.__value)
+        return len(self.value())
 
     def __contains__(self, item):
         low, high = 0, len(self)
@@ -101,14 +101,14 @@ class SortedList:
                 low = mid
 
     def __bool__(self):
-        return bool(self.__value)
+        return bool(self.value())
 
     def __getitem__(self, item: int | slice):
         if isinstance(item, slice):
             res = SortedList(self.__f)
-            res.__value = self.__value[item]
+            res.__value = self.value()[item]
             return res
-        return self.__value[item]
+        return self.value()[item]
 
     def __setitem__(self, i: int, value):
         self.remove(self[i]), self.insert(value)
@@ -117,10 +117,12 @@ class SortedList:
         return self.merge(other)
 
     def __eq__(self, other):
+        if isinstance(other, SortedList):
+            return self.value() == other.value()
         return self.__value == other
 
     def __str__(self):
-        return str(self.__value)
+        return str(self.value())
 
     def __repr__(self):
         return str(self)
@@ -129,7 +131,7 @@ class SortedList:
 def original(data: [int], starter: int = 0, jump: int = 1):
     for i in range(len(data)):
         if data[i] > i:
-            raise ValueError
+            raise ValueError("False data given!")
     sorted_res = []
     for index in range(len(data)):
         curr = index
