@@ -177,20 +177,20 @@ def is_sorted(l: [float]) -> bool:
 def heapify(ll: [int], l: int, h: int, i: int, f=max):
     left, right = l + 2 * (i - l), l + 2 * (i - l) + 1
     res = i
-    if l + left <= h and ll[l + i - 1] != f(ll[l + left - 1], ll[l + i - 1]):
+    if left <= h and ll[i - 1] != f(ll[left - 1], ll[i - 1]):
         res = left
-    if l + right <= h and ll[l + res - 1] != f(ll[l + right - 1], ll[l + res - 1]):
+    if right <= h and ll[res - 1] != f(ll[right - 1], ll[res - 1]):
         res = right
     if res != i:
-        ll[l + i - 1], ll[l + res - 1] = ll[l + res - 1], ll[l + i - 1]
-        heapify(ll, l, h, res, f)
+        ll[i - 1], ll[res - 1] = ll[res - 1], ll[i - 1]
+        heapify(ll, res - l - 1, h, res, f)
 
 
 def build_heap(ll: [int], h: int = 0):
     if not h:
         h = len(ll)
-    for i in range(h // 2, 2, -1):
-        heapify(ll, 2, h, i)
+    for i in range(h // 2, 0, -1):
+        heapify(ll, 0, h, i)
 
 
 def heapsort(ll: [int]):
