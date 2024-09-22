@@ -17,7 +17,7 @@ class SortedList:
             mid = (low + high) // 2
             if f_el == self.f(self[mid]):
                 self.__value.insert(mid, el)
-                return
+                return self
             if f_el < self.f(self[mid]):
                 high = mid
             else:
@@ -25,6 +25,7 @@ class SortedList:
                     break
                 low = mid + 1
         self.__value.insert(high, el)
+        return self
 
     def remove(self, el):
         low, high, f_el = 0, len(self), self.f(el)
