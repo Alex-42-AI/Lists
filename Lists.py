@@ -11,6 +11,11 @@ class SortedList:
     def pop(self, index: int = -1):
         return self.__value.pop(index)
 
+    def copy(self):
+        res = SortedList(self.f())
+        res.__value = self.value().copy()
+        return res
+
     def insert(self, el):
         low, high, f_el = 0, len(self), self.f(el)
         while low < high:
@@ -56,11 +61,6 @@ class SortedList:
                 if low == mid:
                     return False
                 low = mid
-
-    def copy(self):
-        res = SortedList(self.f())
-        res.__value = self.value()
-        return res
 
     def merge(self, other):
         if isinstance(other, SortedList):
