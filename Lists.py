@@ -5,17 +5,20 @@ class SortedList:
     def value(self):
         return self.__value
 
+    def f(self, el=None):
+        return self.__f if el is None else self.__f(el)
+
     def pop(self, index: int = -1):
         return self.__value.pop(index)
 
     def insert(self, el):
-        low, high = 0, len(self)
+        low, high, f_el = 0, len(self), self.f(el)
         while low < high:
             mid = (low + high) // 2
-            if self.__f(el) == self.__f(self[mid]):
+            if f_el == self.f(self[mid]):
                 self.__value.insert(mid, el)
                 return
-            if self.__f(el) < self.__f(self[mid]):
+            if f_el < self.f(self[mid]):
                 high = mid
             else:
                 if low == mid + 1:
@@ -24,76 +27,77 @@ class SortedList:
         self.__value.insert(high, el)
 
     def remove(self, el):
-        low, high = 0, len(self)
+        low, high, f_el = 0, len(self), self.f(el)
         while low < high:
             mid = (low + high) // 2
-            if self.__f(el) == self.__f(self[mid]):
+            if f_el == self.f(self[mid]):
                 if el == self[mid]:
                     self.pop(mid)
                     return True
                 i, j, still = mid - 1, mid + 1, True
                 while still:
                     still = False
-                    if i >= 0 and self.__f(self[i]) == self.__f(el):
+                    if i >= 0 and self.f(self[i]) == f_el:
                         if el == self[i]:
                             self.pop(i)
                             return True
                         i -= 1
                         still = True
-                    if j < len(self) and self.__f(self[j]) == self.__f(el):
+                    if j < len(self) and self.f(self[j]) == f_el:
                         if el == self[j]:
                             self.pop(j)
                             return True
                         j += 1
                         still = True
                 return False
-            if self.__f(el) < self.__f(self[mid]):
-                high = mid
+            if f_el < self.f(self[mid]): high = mid
             else:
                 if low == mid:
                     return False
                 low = mid
 
     def copy(self):
-        res = SortedList(self.__f)
-        for el in self:
-            res.insert(el)
+        res = SortedList(self.f())
+        res.__value = self.value()
         return res
 
     def merge(self, other):
         if isinstance(other, SortedList):
-            if any([self.__f(el) != other.__f(el) for el in self.value() + other.value()]):
+            if any([self.f(el) != other.f(el) for el in self.value() + other.value()]):
                 raise ValueError("Sorting functions of both lists are different!")
             res = self.copy()
-            for el in other:
+            for el in other.value():
                 res.insert(el)
             return res
+
+    def __call__(self, el):
+        return self.f(el)
 
     def __len__(self):
         return len(self.value())
 
     def __contains__(self, item):
-        low, high = 0, len(self)
+        low, high, f_item = 0, len(self), self.f(item)
         while low < high:
             mid = (low + high) // 2
-            if self.__f(item) == self.__f(self[mid]):
+            if f_item == self.f(self[mid]):
                 if item == self[mid]:
                     return True
                 i, j = mid - 1, mid + 1
                 while True:
-                    if i >= 0 and self.__f(self[i]) == self.__f(item):
+                    if i >= 0 and self.f(self[i]) == f_item:
                         if item == self[i]:
                             return True
                         i -= 1
                         continue
-                    if j < len(self) and self.__f(self[j]) == self.__f(item):
+                    if j < len(self) and self.f(self[j]) == f_item:
                         if item == self[j]:
                             return True
                         j += 1
                         continue
                     break
                 return False
-            if self.__f(item) < self.__f(self[mid]):
+            if f_item < self.f(self[mid]):
                 high = mid
             else:
                 if low == mid:
@@ -105,7 +109,7 @@ class SortedList:
 
     def __getitem__(self, item: int | slice):
         if isinstance(item, slice):
-            res = SortedList(self.__f)
+            res = SortedList(self.f())
             res.__value = self.value()[item]
             return res
         return self.value()[item]
@@ -122,7 +126,7 @@ class SortedList:
         return self.__value == other
 
     def __str__(self):
-        return str(self.value())
+        return 'S' + str(self.value())
 
     def __repr__(self):
         return str(self)
@@ -131,7 +135,7 @@ class SortedList:
 def original(data: [int], starter: int = 0, jump: int = 1):
     for i in range(len(data)):
         if data[i] > i:
-            raise ValueError("False data given!")
+            raise ValueError("Wrong data given!")
     sorted_res = []
     for index in range(len(data)):
         curr = index
@@ -161,7 +165,8 @@ def partition(array: iter, low: int, high: int):
 
 
 def quick_sort(array: iter, low=0, high=-1):
-    if high == -1: high = len(array) - 1
+    if high == -1:
+        high = len(array) - 1
     if low < high:
         pivot = partition(array, low, high)
         quick_sort(array, low, pivot - 1), quick_sort(array, pivot + 1, high)
@@ -224,8 +229,5 @@ def merge_sort(A: [float]):
         if l >= h:
             return
         mid = (h + l) // 2
-        helper(l, mid)
-        helper(mid + 1, h)
-        merge(l, mid, h)
-
+        helper(l, mid), helper(mid + 1, h), merge(l, mid, h)
     helper(0, len(A) - 1)
