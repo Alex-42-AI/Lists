@@ -230,4 +230,5 @@ def merge_sort(A: [float]):
             return
         mid = (h + l) // 2
         helper(l, mid), helper(mid + 1, h), merge(l, mid, h)
+
     helper(0, len(A) - 1)
