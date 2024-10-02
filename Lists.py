@@ -63,13 +63,16 @@ class SortedList:
                 low = mid
 
     def merge(self, other):
+        res = self.copy()
         if isinstance(other, SortedList):
             if any([self.f(el) != other.f(el) for el in self.value() + other.value()]):
                 raise ValueError("Sorting functions of both lists are different!")
-            res = self.copy()
             for el in other.value():
                 res.insert(el)
-            return res
+        else:
+            for x in other:
+                res.insert(x)
+        return res
 
     def __call__(self, el):
         return self.f(el)
@@ -123,9 +126,11 @@ class SortedList:
 
     def __eq__(self, other):
         if isinstance(other, SortedList):
+            tmp = other.value().copy()
             for x in self:
-                if x not in other.value():
+                if x not in tmp:
                     return False
+                tmp.remove(x)
             return len(self) == len(other)
         return self.__value == other
 
