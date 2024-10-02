@@ -123,7 +123,10 @@ class SortedList:
 
     def __eq__(self, other):
         if isinstance(other, SortedList):
-            return self.value() == other.value()
+            for x in self:
+                if x not in other.value():
+                    return False
+            return len(self) == len(other)
         return self.__value == other
 
     def __str__(self):
