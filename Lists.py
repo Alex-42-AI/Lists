@@ -1,7 +1,9 @@
 class SortedList:
-    def __init__(self, f=lambda x: x):
+    def __init__(self, *args, f=lambda x: x):
         self.__f, self.__value = f, []
-        
+        for arg in args:
+            self.insert(arg)
+            
     def value(self):
         return self.__value
         
@@ -17,52 +19,59 @@ class SortedList:
         return res
         
     def insert(self, x):
-        low, high, f_x = 0, len(self), self.f(x)
-        while low < high:
-            mid = (low + high) // 2
-            if f_x == self.f(self[mid]):
-                self.__value.insert(mid, x)
-                return self
-            if f_x < self.f(self[mid]):
-                high = mid
-            else:
-                if low == mid + 1:
-                    break
-                low = mid + 1
-        self.__value.insert(high, x)
+        try:
+            low, high, f_x = 0, len(self), self.f(x)
+            while low < high:
+                mid = (low + high) // 2
+                if f_x == self.f(self[mid]):
+                    self.__value.insert(mid, x)
+                    return self
+                if f_x < self.f(self[mid]):
+                    high = mid
+                else:
+                    if low == mid + 1:
+                        return self
+                    low = mid + 1
+            self.__value.insert(high, x)
+        except TypeError:
+            pass
         return self
         
     def remove(self, x):
-        low, high, f_x = 0, len(self), self.f(x)
-        while low < high:
-            mid = (low + high) // 2
-            if f_x == self.f(self[mid]):
-                if x == self[mid]:
-                    self.pop(mid)
-                    return True
-                i, j, still = mid - 1, mid + 1, True
-                while still:
-                    still = False
-                    if i >= 0 and self.f(self[i]) == f_x:
-                        if x == self[i]:
-                            self.pop(i)
-                            return True
-                        i -= 1
-                        still = True
-                    if j < len(self) and self.f(self[j]) == f_x:
-                        if x == self[j]:
-                            self.pop(j)
-                            return True
-                        j += 1
-                        still = True
-                return False
-            if f_x < self.f(self[mid]):
-                high = mid
-            else:
-                if low == mid:
-                    return False
-                low = mid
-                
+        try:
+            low, high, f_x = 0, len(self), self.f(x)
+            while low < high:
+                mid = (low + high) // 2
+                if f_x == self.f(self[mid]):
+                    if x == self[mid]:
+                        self.pop(mid)
+                        return self
+                    i, j, still = mid - 1, mid + 1, True
+                    while still:
+                        still = False
+                        if i >= 0 and self.f(self[i]) == f_x:
+                            if x == self[i]:
+                                self.pop(i)
+                                return self
+                            i -= 1
+                            still = True
+                        if j < len(self) and self.f(self[j]) == f_x:
+                            if x == self[j]:
+                                self.pop(j)
+                                return self
+                            j += 1
+                            still = True
+                    return self
+                if f_x < self.f(self[mid]):
+                    high = mid
+                else:
+                    if low == mid:
+                        return self
+                    low = mid
+        except TypeError:
+            pass
+        return self
+        
     def merge(self, other):
         res = self.copy()
         if isinstance(other, SortedList):
@@ -82,32 +91,36 @@ class SortedList:
         return len(self.value())
         
     def __contains__(self, item):
-        low, high, f_item = 0, len(self), self.f(item)
-        while low < high:
-            mid = (low + high) // 2
-            if f_item == self.f(self[mid]):
-                if item == self[mid]:
-                    return True
-                i, j = mid - 1, mid + 1
-                while True:
-                    if i >= 0 and self.f(self[i]) == f_item:
-                        if item == self[i]:
-                            return True
-                        i -= 1
-                        continue
-                    if j < len(self) and self.f(self[j]) == f_item:
-                        if item == self[j]:
-                            return True
-                        j += 1
-                        continue
-                    break
-                return False
-            if f_item < self.f(self[mid]):
-                high = mid
-            else:
-                if low == mid:
+        try:
+            low, high, f_item = 0, len(self), self.f(item)
+            while low < high:
+                mid = (low + high) // 2
+                if f_item == self.f(self[mid]):
+                    if item == self[mid]:
+                        return True
+                    i, j = mid - 1, mid + 1
+                    while True:
+                        if i >= 0 and self.f(self[i]) == f_item:
+                            if item == self[i]:
+                                return True
+                            i -= 1
+                            continue
+                        if j < len(self) and self.f(self[j]) == f_item:
+                            if item == self[j]:
+                                return True
+                            j += 1
+                            continue
+                        break
                     return False
-                low = mid
+                if f_item < self.f(self[mid]):
+                    high = mid
+                else:
+                    if low == mid:
+                        return False
+                    low = mid
+        except TypeError:
+            return False
+            
     def __bool__(self):
         return bool(self.value())
         
@@ -154,13 +167,15 @@ def original(data: [int], starter: int = 0, jump: int = 1):
     for index in range(len(sorted_res)):
         res[sorted_res[index]] = index * jump + starter
     return res
-    
+
+
 def bubble_sort(array: iter):
     for i in range(len(array)):
         for j in range(len(array[i + 1:])):
             if array[i] > array[j]:
                 array[i], array[j] = array[j], array[i]
-                
+
+
 def partition(array: iter, low: int, high: int):
     pivot, i = array[high], low - 1
     for j in range(low, high):
@@ -169,20 +184,23 @@ def partition(array: iter, low: int, high: int):
             array[i], array[j] = array[j], array[i]
     array[i + 1], array[high] = pivot, array[i + 1]
     return i + 1
-    
+
+
 def quick_sort(array: iter, low=0, high=-1):
     if high == -1:
         high = len(array) - 1
     if low < high:
         pivot = partition(array, low, high)
         quick_sort(array, low, pivot - 1), quick_sort(array, pivot + 1, high)
-        
+
+
 def is_sorted(l: [float]) -> bool:
     for i in range(0, len(l) - 1):
         if l[i] > l[i + 1]:
             return False
     return True
-    
+
+
 def heapify(ll: [int], l: int, h: int, i: int, f=max):
     left, right = l + 2 * (i - l), l + 2 * (i - l) + 1
     res = i
@@ -193,13 +211,15 @@ def heapify(ll: [int], l: int, h: int, i: int, f=max):
     if res != i:
         ll[i - 1], ll[res - 1] = ll[res - 1], ll[i - 1]
         heapify(ll, res - l - 1, h, res, f)
-        
+
+
 def build_heap(ll: [int], h: int = 0):
     if not h:
         h = len(ll)
     for i in range(h // 2, 0, -1):
         heapify(ll, 0, h, i)
-        
+
+
 def heapsort(ll: [int]):
     build_heap(ll)
     h = len(ll)
@@ -207,7 +227,8 @@ def heapsort(ll: [int]):
         ll[0], ll[i] = ll[i], ll[0]
         h -= 1
         heapify(ll, 0, h, 1)
-        
+
+
 def merge_sort(A: [float]):
     def merge(l, mid, h):
         L = A[l:mid + 1]
