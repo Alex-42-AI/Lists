@@ -139,12 +139,9 @@ class SortedList:
         
     def __eq__(self, other):
         if isinstance(other, SortedList):
-            tmp = other.value().copy()
-            for x in self:
-                if x not in tmp:
-                    return False
-                tmp.remove(x)
-            return len(self) == len(other)
+            if any(self.f(x) != other.f(x) for x in self) or any(self.f(x) != other.f(x) for x in other):
+                return self.value() == SortedList(*other.value(), f=self.f()).value()
+            return self.value() == other.value()
         return self.__value == other
         
     def __str__(self):
