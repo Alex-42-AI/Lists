@@ -3,21 +3,21 @@ class SortedList:
         self.__f, self.__value = f, []
         for arg in args:
             self.insert(arg)
-            
+
     def value(self):
         return self.__value
-        
+
     def f(self, x=None):
         return self.__f if x is None else self.__f(x)
-        
+
     def pop(self, index: int = -1):
         return self.__value.pop(index)
-        
+
     def copy(self):
-        res = SortedList(self.f())
+        res = SortedList(f=self.f())
         res.__value = self.value().copy()
         return res
-        
+
     def insert(self, x):
         try:
             low, high, f_x = 0, len(self), self.f(x)
@@ -33,10 +33,10 @@ class SortedList:
                         return self
                     low = mid + 1
             self.__value.insert(high, x)
-        except TypeError:
+        except (ValueError, TypeError):
             pass
         return self
-        
+
     def remove(self, x):
         try:
             low, high, f_x = 0, len(self), self.f(x)
@@ -68,10 +68,10 @@ class SortedList:
                     if low == mid:
                         return self
                     low = mid
-        except TypeError:
+        except (ValueError, TypeError):
             pass
         return self
-        
+
     def merge(self, other):
         res = self.copy()
         if isinstance(other, SortedList):
@@ -83,13 +83,13 @@ class SortedList:
             for x in other:
                 res.insert(x)
         return res
-        
+
     def __call__(self, x):
         return self.f(x)
-        
+
     def __len__(self):
         return len(self.value())
-        
+
     def __contains__(self, item):
         try:
             low, high, f_item = 0, len(self), self.f(item)
@@ -120,33 +120,36 @@ class SortedList:
                     low = mid
         except TypeError:
             return False
-            
+
     def __bool__(self):
         return bool(self.value())
-        
+
     def __getitem__(self, item: int | slice):
         if isinstance(item, slice):
-            res = SortedList(self.f())
+            res = SortedList(f=self.f())
             res.__value = self.value()[item]
             return res
         return self.value()[item]
-        
+
     def __setitem__(self, i: int, value):
         self.remove(self[i]), self.insert(value)
-        
+
     def __add__(self, other):
         return self.merge(other)
-        
+
     def __eq__(self, other):
         if isinstance(other, SortedList):
-            if any(self.f(x) != other.f(x) for x in self) or any(self.f(x) != other.f(x) for x in other):
-                return self.value() == SortedList(*other.value(), f=self.f()).value()
-            return self.value() == other.value()
+            try:
+                if any(self.f(x) != other.f(x) for x in self) or any(self.f(x) != other.f(x) for x in other):
+                    return self.value() == SortedList(*other.value(), f=self.f()).value()
+                return self.value() == other.value()
+            except (ValueError, TypeError):
+                return False
         return self.__value == other
-        
+
     def __str__(self):
         return "S" + str(self.value())
-        
+
     def __repr__(self):
         return str(self)
 
@@ -243,11 +246,11 @@ def merge_sort(A: [float]):
             for j in range(i, mid - l + 1):
                 A[k] = L[j]
                 k += 1
-                
+
     def helper(l, h):
         if l >= h:
             return
         mid = (h + l) // 2
         helper(l, mid), helper(mid + 1, h), merge(l, mid, h)
-        
+
     helper(0, len(A) - 1)
