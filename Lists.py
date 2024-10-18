@@ -4,6 +4,7 @@ class SortedList:
         for arg in args:
             self.insert(arg)
 
+    @property
     def value(self):
         return self.__value
 
@@ -15,7 +16,7 @@ class SortedList:
 
     def copy(self):
         res = SortedList(f=self.f())
-        res.__value = self.value().copy()
+        res.__value = self.value.copy()
         return res
 
     def insert(self, x):
@@ -75,9 +76,9 @@ class SortedList:
     def merge(self, other):
         res = self.copy()
         if isinstance(other, SortedList):
-            if any([self.f(el) != other.f(el) for el in self.value() + other.value()]):
+            if any([self.f(el) != other.f(el) for el in self.value + other.value]):
                 raise ValueError("Sorting functions of both lists are different!")
-            for el in other.value():
+            for el in other.value:
                 res.insert(el)
         else:
             for x in other:
@@ -88,7 +89,7 @@ class SortedList:
         return self.f(x)
 
     def __len__(self):
-        return len(self.value())
+        return len(self.value)
 
     def __contains__(self, item):
         try:
@@ -122,14 +123,14 @@ class SortedList:
             return False
 
     def __bool__(self):
-        return bool(self.value())
+        return bool(self.value)
 
     def __getitem__(self, item: int | slice):
         if isinstance(item, slice):
             res = SortedList(f=self.f())
-            res.__value = self.value()[item]
+            res.__value = self.value[item]
             return res
-        return self.value()[item]
+        return self.value[item]
 
     def __setitem__(self, i: int, value):
         self.remove(self[i]), self.insert(value)
@@ -141,17 +142,16 @@ class SortedList:
         if isinstance(other, SortedList):
             try:
                 if any(self.f(x) != other.f(x) for x in self) or any(self.f(x) != other.f(x) for x in other):
-                    return self.value() == SortedList(*other.value(), f=self.f()).value()
-                return self.value() == other.value()
+                    return self.value == SortedList(*other.value, f=self.f()).value
+                return self.value == other.value
             except (ValueError, TypeError):
                 return False
         return self.__value == other
 
     def __str__(self):
-        return "S" + str(self.value())
+        return "S" + str(self.value)
 
-    def __repr__(self):
-        return str(self)
+    __repr__ = __str__
 
 
 def original(data: [int], starter: int = 0, jump: int = 1):
