@@ -74,18 +74,11 @@ class SortedList:
 
     def merge(self, other):
         res = self.copy()
-        if isinstance(other, SortedList):
-            if any([self.f(el) != other.f(el) for el in self.value + other.value]):
-                raise ValueError("Sorting functions of both lists are different!")
-            for el in other.value:
-                res.insert(el)
-        else:
-            for x in other:
-                res.insert(x)
+        for x in other:
+            res.insert(x)
         return res
 
-    def __call__(self, x):
-        return self.f(x)
+    __call__ = f
 
     def __len__(self):
         return len(self.value)
@@ -135,12 +128,7 @@ class SortedList:
 
     def __eq__(self, other):
         if isinstance(other, SortedList):
-            try:
-                if any(self.f(x) != other.f(x) for x in self.value + other.value):
-                    return self.value == SortedList(*other.value, f=self.f).value
-                return self.value == other.value
-            except (ValueError, TypeError):
-                return False
+            return {x: self.value.count(x) for x in self} == {x: other.value.count(x) for x in other}
         return self.__value == other
 
     def __str__(self):
@@ -149,7 +137,7 @@ class SortedList:
     __repr__ = __str__
 
 
-def original(data: [int], starter: int = 0, jump: int = 1):
+def original(data: list[int], starter: int = 0, jump: int = 1):
     for i in range(len(data)):
         if data[i] > i:
             raise ValueError("Wrong data given!")
@@ -189,33 +177,33 @@ def quick_sort(array: iter, low=0, high=-1):
         quick_sort(array, low, pivot - 1), quick_sort(array, pivot + 1, high)
 
 
-def is_sorted(l: [float]) -> bool:
+def is_sorted(l: list[float]) -> bool:
     for i in range(0, len(l) - 1):
         if l[i] > l[i + 1]:
             return False
     return True
 
 
-def heapify(ll: [int], l: int, h: int, i: int, f=max):
-    left, right = l + 2 * (i - l), l + 2 * (i - l) + 1
+def heapify(ll: list[int], l: int, h: int, i: int, f=max):
+    left, right = 2 * i - l, 2 * i - l + 1
     res = i
-    if left <= h and ll[i - 1] != f(ll[left - 1], ll[i - 1]):
+    if left <= h and (el := ll[i - 1]) != f(ll[left - 1], el):
         res = left
-    if right <= h and ll[res - 1] != f(ll[right - 1], ll[res - 1]):
+    if right <= h and (el := ll[res - 1]) != f(ll[right - 1], el):
         res = right
     if res != i:
         ll[i - 1], ll[res - 1] = ll[res - 1], ll[i - 1]
         heapify(ll, res - l - 1, h, res, f)
 
 
-def build_heap(ll: [int], h: int = 0):
+def build_heap(ll: list[int], h: int = 0):
     if not h:
         h = len(ll)
     for i in range(h // 2, 0, -1):
         heapify(ll, 0, h, i)
 
 
-def heapsort(ll: [int]):
+def heapsort(ll: list[int]):
     build_heap(ll)
     h = len(ll)
     for i in range(len(ll) - 1, 0, -1):
@@ -224,7 +212,7 @@ def heapsort(ll: [int]):
         heapify(ll, 0, h, 1)
 
 
-def merge_sort(A: [float]):
+def merge_sort(A: list[float]):
     def merge(l, mid, h):
         L = A[l:mid + 1]
         R = A[mid + 1:h + 1]
