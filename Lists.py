@@ -1,24 +1,31 @@
+from __future__ import annotations
+
+from typing import SupportsFloat, Callable
+
+
 class SortedList:
-    def __init__(self, *args, f=lambda x: x):
+    def __init__(self, *args: SupportsFloat, f: Callable = lambda x: x):
         self.__f, self.__value = f, []
         for arg in args:
             self.insert(arg)
 
     @property
-    def value(self):
+    def value(self) -> list[SupportsFloat]:
         return self.__value
 
     @property
-    def f(self):
+    def f(self) -> Callable:
         return self.__f
 
-    def pop(self, index: int = -1):
+    def pop(self, index: int = -1) -> SupportsFloat:
         return self.__value.pop(index)
 
-    def copy(self):
-        return SortedList(*self.value, f=self.f)
+    def copy(self) -> SortedList:
+        res = SortedList(f=self.f)
+        res.__value = self.__value.copy()
+        return res
 
-    def insert(self, x):
+    def insert(self, x: SupportsFloat) -> SortedList:
         try:
             low, high, f_x = 0, len(self), self.f(x)
             while low < high:
@@ -37,7 +44,7 @@ class SortedList:
             pass
         return self
 
-    def remove(self, x):
+    def remove(self, x: SupportsFloat) -> SortedList:
         try:
             low, high, f_x = 0, len(self), self.f(x)
             while low < high:
@@ -72,18 +79,18 @@ class SortedList:
             pass
         return self
 
-    def merge(self, other):
+    def merge(self, other: SortedList) -> SortedList:
         res = self.copy()
         for x in other:
             res.insert(x)
         return res
 
-    __call__ = f
+    __call__: Callable = f
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.value)
 
-    def __contains__(self, item):
+    def __contains__(self, item: SupportsFloat) -> bool:
         try:
             low, high, f_item = 0, len(self), self.f(item)
             while low < high:
@@ -111,33 +118,39 @@ class SortedList:
                     if low == mid:
                         return False
                     low = mid
+            return False
         except TypeError:
             return False
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.value)
 
-    def __getitem__(self, item: int | slice):
-        return SortedList(*self.value[item], f=self.f) if isinstance(item, slice) else self.value[item]
+    def __getitem__(self, item: int | slice) -> SupportsFloat | SortedList:
+        if isinstance(item, slice):
+            res = SortedList(f=self.f)
+            res.__value = self.__value[item]
+            return res
+        return self.value[item]
 
-    def __setitem__(self, i: int, value):
-        self.remove(self[i]), self.insert(value)
+    def __setitem__(self, i: int, value: SupportsFloat) -> SortedList:
+        self.remove(self[i])
+        return self.insert(value)
 
-    def __add__(self, other):
+    def __add__(self, other: SortedList) -> SortedList:
         return self.merge(other)
 
-    def __eq__(self, other):
+    def __eq__(self, other: SortedList) -> bool:
         if isinstance(other, SortedList):
             return {x: self.value.count(x) for x in self} == {x: other.value.count(x) for x in other}
         return self.__value == other
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "S" + str(self.value)
 
-    __repr__ = __str__
+    __repr__: str = __str__
 
 
-def original(data: list[int], starter: int = 0, jump: int = 1):
+def original(data: list[float], starter: int = 0, jump: int = 1):
     for i in range(len(data)):
         if data[i] > i:
             raise ValueError("Wrong data given!")
@@ -152,14 +165,14 @@ def original(data: list[int], starter: int = 0, jump: int = 1):
     return res
 
 
-def bubble_sort(array: iter):
+def bubble_sort(array: list[float]):
     for i in range(len(array)):
         for j in range(len(array[i + 1:])):
             if array[i] > array[j]:
                 array[i], array[j] = array[j], array[i]
 
 
-def partition(array: iter, low: int, high: int):
+def partition(array: list[float], low: int, high: int):
     pivot, i = array[high], low - 1
     for j in range(low, high):
         if array[j] < pivot:
@@ -169,7 +182,7 @@ def partition(array: iter, low: int, high: int):
     return i + 1
 
 
-def quick_sort(array: iter, low=0, high=-1):
+def quick_sort(array: list[float], low: int = 0, high: int = -1):
     if high == -1:
         high = len(array) - 1
     if low < high:
@@ -177,7 +190,7 @@ def quick_sort(array: iter, low=0, high=-1):
         quick_sort(array, low, pivot - 1), quick_sort(array, pivot + 1, high)
 
 
-def is_sorted(l: list[float]) -> bool:
+def is_sorted(l: list[SupportsFloat]) -> bool:
     for i in range(0, len(l) - 1):
         if l[i] > l[i + 1]:
             return False
